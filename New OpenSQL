@@ -159,6 +159,7 @@ SELECT FROM vbak
               WHEN 'H' THEN 'Returns'
               ELSE 'Other Doc'
               END AS doc_category,
+         netwr as net_amount,
          CASE                        "Searched Case
          	  WHEN netwr > 1000 THEN 'High Amount Doc'
          	  WHEN ( netwr > 500 and  netwr < 1000 ) THEN 'Medium Price'
