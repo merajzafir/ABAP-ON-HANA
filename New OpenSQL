@@ -7,3 +7,13 @@ SELECT FROM sflight
      INTO TABLE @DATA(lt_data)
      UP TO 10 ROWS.
      
+
+************************ Checking for record in the table using Literals
+select SINGLE 'X'
+FROM vbak
+into @DATA(lv_exist)
+WHERE vkorg = ''.
+if SY-subrc IS INITIAL.
+    
+endif.
+
