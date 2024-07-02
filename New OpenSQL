@@ -90,6 +90,33 @@ ENDIF.
 
 
 
+*************************************Aggregation Expression Select Query
+REPORT z31_dummy.
+
+SELECT FROM vbak AS so
+INNER JOIN vbap AS item
+ON so~vbeln = item~vbeln
+INNER JOIN kna1 as cust
+ON so~kunnr = cust~kunnr
+FIELDS so~kunnr AS cust_id,
+       cust~name1 as customer,
+       item~waerk as currency,
+       ( item~netpr + 1 ) as Two,
+       sum( item~netpr ) as total_netprice,
+       avg( item~netpr ) as average_price,
+       max( item~netpr ) as max_price,
+       min( item~netpr ) as min_price
+  GROUP BY so~kunnr, cust~name1, item~waerk, ( item~netpr + 1 )
+  INTO TABLE @data(lt_result)
+  UP TO 30 ROWS.
+
+IF sy-subrc is INITIAL.
+  cl_demo_output=>display( lt_result ).
+ENDIF.
+
+
+
+
 
 
 
