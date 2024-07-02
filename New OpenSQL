@@ -148,17 +148,22 @@ DELETE FROM zdemo_expr.
 
 
 
-***************************Simple Case in Open SQL
-EPORT z31_dummy.
+***************************Case Statement in Open SQL
+REPORT z31_dummy.
 
 SELECT FROM vbak
   FIELDS vbeln AS sales_order,
-         CASE  vbtyp
-         	WHEN 'C' THEN 'Order'
-         	WHEN 'B' THEN 'Quotation'
-         	WHEN 'H' THEN 'Returns'
-          ELSE 'Other Doc'
-          END AS doc_category
+         CASE  vbtyp                    "Simple Case
+         	  WHEN 'C' THEN 'Order'
+         	  WHEN 'B' THEN 'Quotation'
+              WHEN 'H' THEN 'Returns'
+              ELSE 'Other Doc'
+              END AS doc_category,
+         CASE                        "Searched Case
+         	  WHEN netwr > 1000 THEN 'High Amount Doc'
+         	  WHEN ( netwr > 500 and  netwr < 1000 ) THEN 'Medium Price'
+              ELSE 'Low'
+              END AS amount_category
   INTO TABLE @DATA(lt_result).
 
 IF sy-subrc = 0.
