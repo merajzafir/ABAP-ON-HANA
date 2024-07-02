@@ -148,5 +148,26 @@ DELETE FROM zdemo_expr.
 
 
 
+***************************Simple Case in Open SQL
+EPORT z31_dummy.
+
+SELECT FROM vbak
+  FIELDS vbeln AS sales_order,
+         CASE  vbtyp
+         	WHEN 'C' THEN 'Order'
+         	WHEN 'B' THEN 'Quotation'
+         	WHEN 'H' THEN 'Returns'
+          ELSE 'Other Doc'
+          END AS doc_category
+  INTO TABLE @DATA(lt_result).
+
+IF sy-subrc = 0.
+  cl_demo_output=>display( lt_result ).
+ENDIF.
+
+
+
+
+
 
 
