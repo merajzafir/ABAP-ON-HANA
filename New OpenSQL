@@ -17,3 +17,44 @@ if SY-subrc IS INITIAL.
     
 endif.
 
+
+
+******************************
+REPORT z31_dummy.
+
+TABLES mara.
+
+select-OPTIONS: s_matnr FOR mara-matnr.
+
+data: lt_matnr TYPE RANGE OF matnr,
+      ls_matnr LIKE LINE OF lt_matnr,
+      lt_range TYPE RANGE OF matnr.
+
+ls_matnr-sign = 'I'.
+ls_matnr-option = 'CP'.
+ls_matnr-low = 'TG*'.
+APPEND ls_matnr TO lt_matnr.
+
+SELECT 'I' as sign,
+        'CP' as option,
+        matnr as low,
+        ' ' as high
+    FROM mara
+    into TABLE @lt_range
+    WHERE matnr in @s_matnr AND matnr in @lt_matnr.
+if sy-subrc = 0.
+  cl_demo_output=>write( lt_range ).
+
+  SELECT vbeln, posnr, matnr
+    FROM vbap
+    INTO TABLE @data(lt_data)
+    UP TO 20 ROWS
+    WHERE matnr in @lt_range.
+
+    cl_demo_output=>display( lt_data ).
+
+endif.
+
+
+
+
