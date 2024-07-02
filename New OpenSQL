@@ -58,3 +58,30 @@ endif.
 
 
 
+********************************Arithmetic Expression in Select Query
+REPORT z31_dummy.
+
+data: lv_discount TYPE p DECIMALS 1 VALUE '0.8'.
+
+SELECT FROM vbak AS so
+INNER JOIN vbap AS item
+ON so~vbeln = item~vbeln
+FIELDS so~vbeln AS sales_orde,
+       item~posnr AS sales_item,
+       item~netpr as net_price,
+       item~netpr * @lv_discount as net_discounted,
+       ceil( item~netpr ) as ceil,
+       floor( item~netpr ) as floor,
+       abs( item~netpr ) as abs,
+       round( item~netpr, 1 ) as round,
+       div( cast( item~netpr as int8 ), 10 ) as div,  "operators DIV and MOD cannot be used in expressions that contain real decimal numbers such as NETPR.
+       mod( cast( item~netpr as int8 ), 10 ) as mod
+  INTO TABLE @data(lt_result)
+  UP TO 20 ROWS.
+
+IF sy-subrc is INITIAL.
+  cl_demo_output=>display( lt_result ).
+ENDIF.
+
+
+
