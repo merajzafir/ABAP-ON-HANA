@@ -66,7 +66,11 @@ data: lv_discount TYPE p DECIMALS 1 VALUE '0.8'.
 SELECT FROM vbak AS so
 INNER JOIN vbap AS item
 ON so~vbeln = item~vbeln
+INNER JOIN kna1 as cust
+ON so~kunnr = cust~kunnr
 FIELDS so~vbeln AS sales_orde,
+       so~kunnr as cust_id,
+       cust~name1 as customer,
        item~posnr AS sales_item,
        item~netpr as net_price,
        item~netpr * @lv_discount as net_discounted,
@@ -77,11 +81,16 @@ FIELDS so~vbeln AS sales_orde,
        div( cast( item~netpr as int8 ), 10 ) as div,  "operators DIV and MOD cannot be used in expressions that contain real decimal numbers such as NETPR.
        mod( cast( item~netpr as int8 ), 10 ) as mod
   INTO TABLE @data(lt_result)
-  UP TO 20 ROWS.
+  UP TO 50 ROWS.
 
 IF sy-subrc is INITIAL.
   cl_demo_output=>display( lt_result ).
 ENDIF.
+
+
+
+
+
 
 
 
