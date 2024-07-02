@@ -1,0 +1,9 @@
+************************ New Open SQL
+SELECT FROM sflight
+    FIELDS carrid,
+            connid,
+            fldate
+     WHERE carrid = 'AA'
+     INTO TABLE @DATA(lt_data)
+     UP TO 10 ROWS.
+     
