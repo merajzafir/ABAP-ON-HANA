@@ -117,6 +117,35 @@ ENDIF.
 
 
 
+*******************String Operation in Select Query
+DELETE FROM zdemo_expr.
+    INSERT zdemo_expr FROM TABLE @( VALUE #( ( id = 1 char1 = ' 0123' char2 = 'aAaA' ) ) ).
+
+    SELECT
+      FROM zdemo_expr
+      FIELDS char1 AS text1,
+             char2 AS text2,
+             concat( char1, char2 ) AS concatenated,
+             CONCAT_WITH_SPACE( char1, char2, 1 ) as concat_with_space,
+             length( char1 ) AS text1_length,
+             instr( char1, '12' ) AS instr,
+             left( char1, 3 ) AS left,
+             right( char1, 3 ) AS right,
+             lpad( char1, 10, 'X' ) AS lpad,
+             Rpad( char1, 10, 'X' ) AS rpad,
+             ltrim( char1, ' ' ) AS ltrim,
+              rtrim( char2, 'a' ) AS rtrim,
+             replace( char2, 'Aa', '--' ) AS replace,
+            lower( char2 ) AS lowercase,
+            upper( char2 ) AS uppercase,
+            substring( char2, 2, 2 ) AS substring
+      INTO TABLE @DATA(lt_result).
+
+    IF sy-subrc = 0.
+      cl_demo_output=>display( lt_result ).
+    ENDIF.
+
+
 
 
 
