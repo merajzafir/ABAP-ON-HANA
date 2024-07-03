@@ -175,5 +175,33 @@ ENDIF.
 
 
 
+********************************COALESCE Function in Select
+REPORT z31_dummy.
+
+SELECT FROM vbak as so
+  LEFT OUTER JOIN vbfa as flow
+  ON flow~vbelv = so~vbeln
+  AND flow~vbtyp_v = 'C'
+  AND flow~vbtyp_n = 'M'
+  LEFT OUTER JOIN vbrk as inv
+  ON inv~vbeln = flow~vbeln
+  FIELDS so~vbeln as sales_order,
+        so~netwr as so_amount,
+        inv~netwr as inv_amount,
+        CASE
+        WHEN inv~netwr is NOT NULL THEN inv~netwr
+        ELSE so~netwr
+        END as net_amount,
+        COALESCE( inv~netwr, so~netwr ) as amount_co
+  INTO TABLE @data(lt_result).
+
+IF sy-subrc = 0.
+  cl_demo_output=>display( lt_result ).
+ENDIF.
+
+
+
+
+
 
 
