@@ -250,6 +250,18 @@ demo=>main( ).
 
 
 
+***********************************CLIENT Handling in OpenSQL
+SELECT FROM spfli
+      USING CLIENT '100'
+        FIELDS carrid,
+               cityfrom,
+               cityto
+     WHERE carrid = 'UA'
+     INTO TABLE @data(lt_result).
+
+
+
+
 
 
 
