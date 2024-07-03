@@ -263,6 +263,24 @@ SELECT FROM spfli
 
 
 
+*******************************CROSS JOIN
+select
+  FROM t000 as clnt
+  CROSS JOIN t100 as msg
+  FIELDS clnt~mandt as client,
+         clnt~mtext as descr,
+         msg~msgnr  as msgno
+  WHERE msg~arbgb = 'SABAPDEMOS'
+  into TABLE @data(lt_result).
+
+IF sy-subrc = 0.
+ cl_demo_output=>display( lt_result ).
+ENDIF.
+
+
+
+
+
 
 
 
