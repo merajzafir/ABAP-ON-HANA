@@ -203,5 +203,55 @@ ENDIF.
 
 
 
+************************************Host Expression in WHERE Clause
+REPORT z31_dummy.
+
+class demo DEFINITION.
+
+  PUBLIC SECTION.
+  CLASS-METHODS main.
+  CLASS-METHODS class_constructor.
+  CLASS-data: lt_scarr type STANDARD TABLE OF scarr.
+
+ENDCLASS.
+
+CLASS demo IMPLEMENTATION.
+
+  METHOD class_constructor.
+     SELECT * FROM scarr
+       INTO TABLE @lt_scarr.
+  ENDMETHOD.
+
+  METHOD main.
+
+    data lv_carrname TYPE scarr-carrname VALUE 'United Airlines'.
+
+    cl_demo_input=>request( CHANGING field = lv_carrname ).
+
+    SELECT FROM spfli
+        FIELDS carrid,
+               cityfrom,
+               cityto
+     WHERE carrid = @( value spfli-carrid( lt_scarr[ carrname = lv_carrname ]-carrid OPTIONAL ) )
+     INTO TABLE @data(lt_result).
+
+     IF sy-subrc = 0.
+        cl_demo_output=>display( lt_result ).
+     ENDIF.
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+START-OF-SELECTION.
+demo=>main( ).
+
+
+
+
+
+
+
+
 
 
