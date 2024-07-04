@@ -280,7 +280,29 @@ ENDIF.
 
 
 
-
+*******************************Group By Clause
+SELECT
+   FROM vbak AS so
+   INNER JOIN kna1 AS cust
+   ON so~kunnr = cust~kunnr
+   FIELDS so~kunnr AS cust_id,
+         cust~name1 AS customer,
+         so~netwr as price,
+         so~waerk AS currency,
+         COUNT( so~netwr ) AS count,
+         CASE
+             WHEN so~netwr > 1000 THEN 'High Amount Doc'
+         	   WHEN ( so~netwr > 500 AND  so~netwr < 1000 ) THEN 'Medium Price'
+             ELSE 'Low'
+             END AS amount_category
+  "where so~kunnr = 'USCU_L01'
+  GROUP BY so~kunnr, cust~name1,so~waerk,so~netwr,
+        CASE
+             WHEN so~netwr > 1000 THEN 'High Amount Doc'
+         	   WHEN ( so~netwr > 500 AND  so~netwr < 1000 ) THEN 'Medium Price'
+             ELSE 'Low'
+             END
+  INTO TABLE @DATA(lt_result).
 
 
 
