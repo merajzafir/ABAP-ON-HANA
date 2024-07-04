@@ -307,3 +307,20 @@ SELECT
 
 
 
+
+*********************************HAVING Clause
+SELECT
+   FROM vbak AS so
+   INNER JOIN kna1 AS cust
+   ON so~kunnr = cust~kunnr
+   FIELDS so~kunnr AS cust_id,
+         cust~name1 AS customer,
+         "so~waerk,
+         sum( so~netwr ) AS total,
+         avg( so~netwr ) AS avg,
+         max( so~netwr ) AS max,
+         min( so~netwr ) AS min,
+         COUNT( so~netwr ) AS count
+   GROUP BY so~kunnr, cust~name1,so~waerk
+   Having sum( so~netwr ) > 5000 and so~waerk = 'USD'
+   INTO TABLE @DATA(lt_result).
