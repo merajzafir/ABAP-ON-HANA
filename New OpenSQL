@@ -324,3 +324,37 @@ SELECT
    GROUP BY so~kunnr, cust~name1,so~waerk
    Having sum( so~netwr ) > 5000 and so~waerk = 'USD'
    INTO TABLE @DATA(lt_result).
+
+
+
+
+
+************************* Union
+SELECT FROM sflight INNER JOIN spfli
+    ON sflight~carrid = spfli~carrid
+    AND  sflight~connid = spfli~connid
+    FIELDS sflight~carrid,
+           sflight~connid,
+           sflight~fldate,
+           spfli~cityfrom,
+           spfli~cityto
+    WHERE spfli~cityfrom = 'FRANKFURT'
+
+UNION
+
+SELECT FROM sflight  INNER JOIN spfli
+   ON sflight~carrid = spfli~carrid
+   AND sflight~connid = spfli~connid
+   FIELDS sflight~carrid,
+          sflight~connid,
+          sflight~fldate,
+          spfli~cityfrom,
+          spfli~cityto
+    WHERE spfli~cityfrom = 'SAN FRANCISCO'
+INTO TABLE @DATA(lt_flights).
+
+cl_demo_output=>write( lines( lt_flights ) ).
+cl_demo_output=>display( lt_flights ).
+
+
+
