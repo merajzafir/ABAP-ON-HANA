@@ -63,4 +63,37 @@ define view ZCDS_DDL2
 
 
 
-/////////////////////////////////////
+///////////////////////////////////// Arithmetic Expression in CDS
+@AbapCatalog.sqlViewName: 'ZCDS_SLQ3'
+@EndUserText.label: 'Arithmetic Expression'
+define view ZCDS_DDL3 as 
+select from sbook
+{
+    carrid as airline_code,
+    bookid as booking_number,
+    fldate as flight_date,
+    loccuram as booking_amount,
+    
+    100 as additional_charge,
+    loccuram + 100 as new_booking_amount,
+    ceil(loccuram + 100) as rounded_new_booking_amount,
+    cast(loccuram as abap.fltp) - cast(loccuram as abap.fltp) * 0.30 as discounted_booking_amount,
+    
+    concat_with_space(carrid, bookid, 1) as booking_info,
+    
+    currency_conversion(amount => loccuram, 
+                        source_currency => loccurkey, 
+                        target_currency => cast('EUR' as abap.cuky( 5 ) ), 
+                        exchange_rate_date => fldate ) as euro_booking_amount
+    
+}
+
+
+
+
+
+////////////////////////////////////
+
+
+
+
