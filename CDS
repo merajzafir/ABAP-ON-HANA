@@ -1,0 +1,26 @@
+//////////////////////////////////// ANNOTAIONS IN CDS
+@AbapCatalog.sqlViewName: 'ZCDS_SQL1'   --Normal View
+@AccessControl.authorizationCheck: #CHECK --Authorization Check
+@EndUserText.label: 'Simple CDS View'   --CDS Description
+@AbapCatalog.buffering.status: #ACTIVE
+@AbapCatalog.buffering.type: #SINGLE
+@ClientHandling.type: #INHERITED --Automatic Client Handling
+define view ZCDS_DDL1 as 
+select from sbook
+{
+    carrid as airline_code,
+    connid as airline_number,
+    fldate as flight_date,
+    bookid as booking_number,
+    customid as cutomre_number,
+    @Semantics.amount.currencyCode: 'local_currency'    
+    loccuram as local_currency_amount,
+    @Semantics.currencyCode: true
+    loccurkey as local_currency
+}
+
+
+
+
+
+////////////////////////////////////
