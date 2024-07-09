@@ -319,6 +319,32 @@ association to scustom as _b
 }
 
 
+//////////////////////////////// Simple CDS View for extend view
+@AbapCatalog.sqlViewName: 'ZCDS_SQL13'
+@EndUserText.label: 'Simple CDS View for extend view'
+define view ZCDS_DDL13 as select from sbook as a
+{
+    a.carrid,
+    a.connid,
+    a.customid,
+    a.smoker,
+    a.loccuram,
+    case a.smoker
+        when 'X' then a.loccuram * 2
+        else a.loccuram * 1
+    end as adjsuted_amount
+}
 
 
+//////////////////////////////// Extend CDS View
+@AbapCatalog.sqlViewAppendName: 'ZCDS_DDL14_EXT'
+@EndUserText.label: 'Extend CDS View'
+extend view ZCDS_DDL13 with ZCDS_DDL14
+association to scustom as _b
+on a.customid = _b.id
+{
+    concat_with_space(a.carrid, a.connid, 1) as new_id,
+    _b.name,
+    _b.email
+}
 
