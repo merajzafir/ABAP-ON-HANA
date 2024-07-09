@@ -157,3 +157,30 @@ where id = '00000001'
 
 
 
+
+
+//////////////////////////////////////////// PARAMETERS in CDS
+@AbapCatalog.sqlViewName: 'ZCDS_SQL7'
+@EndUserText.label: 'Parameters in CDS'
+define view ZCDS_DDL7 
+    with parameters smoker_factor : abap.curr( 15, 2 ),
+                    non_smoker_factor : s_l_cur_pr,
+                    @Environment.systemField: #SYSTEM_DATE --To provide sytem field value in below paramter if it is not provided by user
+                    flight_date : abap.dats 
+                    
+as select from sbook
+{
+    carrid as airline,
+    loccuram as amount,
+    smoker,
+    case smoker
+         when 'X' then loccuram * $parameters.smoker_factor 
+         else loccuram * :non_smoker_factor
+     end as adjsuted_amount,
+     fldate
+}
+where fldate between '20180615' and :flight_date 
+
+
+
+
