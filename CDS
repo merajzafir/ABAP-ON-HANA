@@ -282,3 +282,20 @@ define view ZCDS_DDL11 as select from ZCDS_DDL10 as c
 }
 
 
+
+
+****************************** Path Expression in OpenSQL to consume Exposed Association ZCDS_DDL10 in ABAP Report
+REPORT zrepor_cds11.
+
+SELECT carrid,
+       customid,
+       \_b-email as email,
+       \_b-name
+        FROM ZCDS_DDL10
+        INTO TABLE @data(lt_data)
+        UP TO 100 ROWS.
+
+cl_demo_output=>display( lt_data ).
+
+
+
