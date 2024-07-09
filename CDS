@@ -135,3 +135,25 @@ inner join (
 }
 where a.customid = '00000001'
 
+
+
+
+///////////////////////////////////// UNION in CDS
+@AbapCatalog.sqlViewName: 'ZCDS_SQL6'
+@EndUserText.label: 'Union in CDS'
+define view ZCDS_DDL6 as select from sbook
+{
+    customid
+}
+where customid = '00000001'
+
+union 
+
+select from scustom
+{
+    id as customid
+}
+where id = '00000001'
+
+
+
