@@ -289,8 +289,8 @@ REPORT zrepor_cds11.
 
 SELECT carrid,
        customid,
-       \_b-email as email,
-       \_b-name
+       \_b-email as email,    --Path Expression
+       \_b-name               --Path Expression
         FROM ZCDS_DDL10
         INTO TABLE @data(lt_data)
         UP TO 100 ROWS.
