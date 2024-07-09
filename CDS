@@ -113,4 +113,25 @@ having carrid = 'UA'
 
 
 
+///////////////////////////////////////// Nested JOINS in CDS
+@AbapCatalog.sqlViewName: 'ZCDS_SQL5'
+@EndUserText.label: 'Joins in CDS'
+define view ZCDS_DDL5 as select from scarr as c   --Nested Joins
+inner join (
+                sbook as a 
+                inner join scustom as b
+                on a.customid = b.id
+           )
+           on c.carrid = a.carrid
+{
+    a.carrid,
+    a.connid,
+    a.fldate,
+    a.bookid,
+    a.customid,
+    b.name,
+    b.email,
+    c.carrname
+}
+where a.customid = '00000001'
 
