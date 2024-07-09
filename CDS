@@ -183,4 +183,23 @@ where fldate between '20180615' and :flight_date
 
 
 
+//////////////////////////////////////// Consuming CDS View in Another CDS View
+@AbapCatalog.sqlViewName: 'ZCDS_SQL8'
+@EndUserText.label: 'Consuming CDS View in Another CDS View'
+define view ZCDS_DDL8 
+    with parameters flg_date : abap.dats
+as select from ZCDS_DDL7( smoker_factor : 2,
+                           non_smoker_factor : 1,
+                           flight_date : $parameters.flg_date
+                        )
+{
+    airline,
+    amount,
+    adjsuted_amount,
+    fldate
+}
+
+
+
+
 
