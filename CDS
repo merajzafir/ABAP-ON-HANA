@@ -202,4 +202,32 @@ as select from ZCDS_DDL7( smoker_factor : 2,
 
 
 
+********************** Consuming CDS View zcds_ddl7 in ABAP Report
+REPORT zrepor_cds7.
+
+PARAMETERS: p_date TYPE datum DEFAULT '20210914'.
+
+SELECT * FROM zcds_ddl7(
+                           smoker_factor = 3
+                         , non_smoker_factor = 2
+                         , flight_date = @p_date
+                       )
+                       INTO TABLE @DATA(lt_data).
+TRY.
+    cl_salv_table=>factory(
+      EXPORTING
+       list_display   = if_salv_c_bool_sap=>false
+*    r_container    =
+*    container_name =
+      IMPORTING
+       r_salv_table   = DATA(lo_alv)
+      CHANGING
+        t_table        = lt_data
+    ).
+  CATCH cx_salv_msg.
+ENDTRY.
+
+lo_alv->display(  ).
+
+
 
