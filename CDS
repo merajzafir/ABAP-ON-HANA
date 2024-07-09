@@ -270,4 +270,15 @@ association to scustom as _b
 
 
 
-///////////////////////////
+/////////////////////////// Path Expression in CDS
+@AbapCatalog.sqlViewName: 'ZCDS_SQL11'
+@EndUserText.label: 'Path Expression in CDS'
+define view ZCDS_DDL11 as select from ZCDS_DDL10 as c
+{
+    c.carrid,
+    c.connid,
+    c._b.name,  --Path Expression
+    c._b.email  --Path Expression
+}
+
+
