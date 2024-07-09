@@ -252,4 +252,22 @@ association to scustom as _b
 
 
 
+////////////////////////////////////// Exposed Association in CDS
+@AbapCatalog.sqlViewName: 'ZCDS_SQL10'
+@EndUserText.label: 'Exposed Association in CDS'
+define view ZCDS_DDL10 as select from sbook as a
+association to scustom as _b
+    on a.customid = _b.id
+{
+    a.carrid,
+    a.connid,
+    a.fldate,
+    a.bookid,
+    a.customid,
+    _b
+}
 
+
+
+
+///////////////////////////
