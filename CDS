@@ -395,4 +395,30 @@ where currcode = 'USD'
 
 
 
+////////////////////////////// Intersect Set Operator in CDS Entity
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@EndUserText.label: 'Intersect Set Operator'
+@Metadata.ignorePropagatedAnnotations: true
+define view entity ZCDS_ENTITY2 as select from scarr
+{
+    key carrid as Carrid,
+    carrname as Carrname,
+    currcode as Currcode,
+    url as Url
+}
+where carrid like 'A_'
+
+intersect
+
+select from scarr
+{
+    key carrid as Carrid,
+    carrname as Carrname,
+    currcode as Currcode,
+    url as Url
+}
+where currcode = 'USD'
+
+
+
 
