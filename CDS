@@ -348,3 +348,51 @@ on a.customid = _b.id
     _b.email
 }
 
+
+
+
+
+
+///////////////////////////////// CDS View Entity
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@EndUserText.label: 'CDS View Entity'
+@Metadata.ignorePropagatedAnnotations: true
+define view entity ZCDS_ENTITY1 as select from sbook
+{
+    carrid as airline_code,
+    connid as airline_number,
+    fldate as flight_date,
+    bookid as booking_number,
+    customid as customer_number
+}
+
+
+
+
+///////////////////////////////// Except Set Operator in CDS Entity
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@EndUserText.label: 'Except Set Operator'
+@Metadata.ignorePropagatedAnnotations: true
+define view entity ZCDS_ENTITY2 as select from scarr
+{
+    key carrid as Carrid,
+    carrname as Carrname,
+    currcode as Currcode,
+    url as Url
+}
+where carrid like 'A_'
+
+except
+
+select from scarr
+{
+    key carrid as Carrid,
+    carrname as Carrname,
+    currcode as Currcode,
+    url as Url
+}
+where currcode = 'USD'
+
+
+
+
