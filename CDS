@@ -233,6 +233,34 @@ lo_alv->display(  ).
 
 
 
+/////////////////////////////////// Built-In Function CURRENCY_CONVERSION
+@AbapCatalog.sqlViewName: 'Z31_SESSIONVAR'
+@AbapCatalog.preserveKey: true
+@EndUserText.label: 'Built-In Function CURRENCY_CONVERSION'
+define view Z31_CDS_SESSIONVAR 
+    with parameters P_VBELN : vbeln_va,
+                    P_ERDAT :   erdat,
+                    P_WAERK : waerk -- Taget Currency For Conversion
+as select from vbak
+{
+   vbeln as SalesDocNo,
+   erdat as CreationDate,
+   ernam as CreatedBy,
+   netwr as NetValues,
+   waerk  as Currenecy,
+   currency_conversion(amount => netwr, 
+                       source_currency => waerk, 
+                       target_currency => $parameters.P_WAERK, 
+                       exchange_rate_date => $parameters.P_ERDAT) as Converted_NetValue,
+   $parameters.P_WAERK as TargetCurrency
+   
+}
+where vbeln = $parameters.P_VBELN
+
+
+
+
+
 ////////////////////////////////////////// Ad-hoc Association in CDS
 @AbapCatalog.sqlViewName: 'ZCDS_SQL9'
 @EndUserText.label: 'Ad-hoc Association'
