@@ -259,6 +259,33 @@ where vbeln = $parameters.P_VBELN
 
 
 
+////////////////////////////////// Built-In Function UNIT_CONVERSION
+@AbapCatalog.sqlViewName: 'Z31_SESSIONVAR'
+@AbapCatalog.preserveKey: true
+@EndUserText.label: 'Built-In Function UNIT_CONVERSION'
+define view Z31_CDS_SESSIONVAR 
+    with parameters P_UNIT : abap.unit( 3 ) -- Target Unit For Conversion
+as select from spfli as sp
+{
+      key sp.carrid,
+      key sp.connid,
+      sp.countryfr,
+      sp.countryto,
+      sp.distance,
+      sp.distid,
+      @Semantics.quantity.unitOfMeasure: 'TargetUnit'
+      unit_conversion(quantity => sp.distance, 
+                      source_unit => sp.distid, 
+                      target_unit => $parameters.P_UNIT) as Converted_Distance,
+      @Semantics.unitOfMeasure: true
+      $parameters.P_UNIT as TargetUnit                
+                      
+}
+where carrid = 'AZ'
+
+
+
+
 
 
 ////////////////////////////////////////// Ad-hoc Association in CDS
