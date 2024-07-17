@@ -374,7 +374,7 @@ association to scustom as _b
 }
 
 
-//////////////////////////////// Simple CDS View for extend view
+//////////////////////////////// CDS View Which is used for Extension
 @AbapCatalog.sqlViewName: 'ZCDS_SQL13'
 @EndUserText.label: 'Simple CDS View for extend view'
 define view ZCDS_DDL13 as select from sbook as a
@@ -389,6 +389,17 @@ define view ZCDS_DDL13 as select from sbook as a
         else a.loccuram * 1
     end as adjsuted_amount
 }
+
+
+/////////////////////////////////// Simple Extend CDS
+@AbapCatalog.sqlViewAppendName: 'ZCDS_DDL15_EXT'
+@EndUserText.label: 'Simple Extend CDS'
+extend view ZCDS_DDL13 with ZCDS_DDL15
+{
+    a.agencynum,
+    a.passname
+}
+
 
 
 //////////////////////////////// Extend CDS View
