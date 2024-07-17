@@ -20,6 +20,43 @@ select from sbook
 }
 
 
+///////////////////////////////////////////////////////    Annotations
+@AbapCatalog.sqlViewName: 'Z31_SQL_DEMO'
+@AbapCatalog.preserveKey: true
+@AbapCatalog.buffering.status: #ACTIVE
+@AbapCatalog.buffering.type: #FULL
+@AbapCatalog.dataMaintenance: #RESTRICTED
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@ObjectModel.usageType: {
+    serviceQuality: #X,
+    sizeCategory: #S,
+    dataClass: #MASTER
+}
+@EndUserText.label: 'Annotations'
+define view Z31_CDS_DEMO as select from sflight
+{
+    @EndUserText.label: 'Flight ID'
+    @EndUserText.quickInfo: 'This is Airline Code'
+    key carrid,
+    @EndUserText.label: 'Flight No.'
+    key connid,
+    key fldate,
+    price
+}
+
+
+********************************* Access Control Defined For CDS Z31_CDS_DEMO
+@EndUserText.label: 'Access Control For CDS Z31_CDS_DEMO'
+@MappingRole: true
+define role Z31_CDS_ACC {
+    grant
+        select
+            on
+                Z31_CDS_DEMO
+                    where
+                         carrid = 'AA';
+                        
+}
 
 
 
