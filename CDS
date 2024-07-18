@@ -411,6 +411,30 @@ association to scustom as _b
 }
 
 
+
+///////////////////////////////////// CDS With Association on top of 3 Tables
+@AbapCatalog.sqlViewName: 'ZCDS_SQL16'
+@AbapCatalog.compiler.compareFilter: true
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'CDS With Association on top of 3 Tables'
+define view ZCDS_DDL16 as select from spfli as sp
+association to sflight as _assoc1
+    on $projection.carrid = _assoc1.carrid and $projection.connid = _assoc1.connid
+association to sairport as _assoc2
+    on $projection.airpfrom = _assoc2.id   
+{
+   
+    sp.carrid,
+    sp.connid,
+    sp.airpfrom,
+    _assoc1,
+    _assoc2
+}
+
+
+
+
 //////////////////////////////// CDS View Which is used for Extension
 @AbapCatalog.sqlViewName: 'ZCDS_SQL13'
 @EndUserText.label: 'Simple CDS View for extend view'
