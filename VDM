@@ -1,0 +1,89 @@
+///////////////////////////////////////////////////// Basic View 1 for MARA Table
+@AbapCatalog.sqlViewName: 'ZCDS_I_SVIEW1'
+@AbapCatalog.preserveKey: true
+@VDM.viewType: #BASIC
+@Analytics.dataCategory: #DIMENSION
+@EndUserText.label: 'Basic View 1 for MARA Table'
+define view ZCDS_I_VIEW1 as select from mara
+{
+   key matnr,
+       mbrsh,
+       mtart,
+       matkl
+}
+
+
+///////////////////////////////////////////////////// Basic View 2 for KNA1 Table
+@AbapCatalog.sqlViewName: 'ZCDS_I_SVIEW2'
+@AbapCatalog.preserveKey: true
+@VDM.viewType: #BASIC
+@Analytics.dataCategory: #DIMENSION
+@EndUserText.label: 'Basic View 2 for KNA1 Table'
+define view ZCDS_I_VIEW2 as select from kna1
+{
+    key kunnr,
+        land1,
+        name1,
+        ort01
+}
+
+
+////////////////////////////////////////////////// Basic View 3 for EKKO & EKPO Table
+@AbapCatalog.sqlViewName: 'ZCDS_I_SVIEW3'
+@AbapCatalog.preserveKey: true
+@VDM.viewType: #BASIC
+@Analytics.dataCategory: #FACT
+@EndUserText.label: 'Basic View 3 for EKKO & EKPO Table'
+define view ZCDS_I_VIEW3 as select from ekko
+    inner join ekpo
+    on ekko.ebeln = ekpo.ebeln
+{
+    ekko.ebeln,
+    ekpo.ebelp,
+    ekpo.netpr,
+    ekpo.kunnr,
+    ekpo.matnr
+}
+
+
+///////////////////////////////////////////// Conmposite View to consume Three Basic View
+@AbapCatalog.sqlViewName: 'ZCDS_CO_SVIEW1'
+@VDM.viewType: #COMPOSITE
+@Analytics.dataCategory: #CUBE
+@EndUserText.label: 'Conmposite View to consume Three Basic View'
+define view ZCDS_CO_VIEW1 as select from ZCDS_I_VIEW3 as cds3 
+association to ZCDS_I_VIEW1 as cds1
+    on cds3.matnr = cds1.matnr
+association to ZCDS_I_VIEW2 as cds2
+    on cds3.kunnr = cds2.kunnr
+{
+    ebeln,
+    ebelp,
+    netpr,
+    matnr,
+    kunnr,
+    cds2,
+    cds1
+}
+
+
+//////////////////////////////////////////// Consumption View
+@AbapCatalog.sqlViewName: 'ZCCDS_SVIEW1'
+@VDM.viewType: #CONSUMPTION
+@OData.publish: true
+@EndUserText.label: 'Consumption View'
+define view ZCCDS_VIEW1 as select from ZCDS_CO_VIEW1
+{
+   key ebeln,
+   key ebelp,
+       netpr,
+       kunnr,
+       matnr,
+       cds1,
+       cds2
+}
+
+
+
+
+
