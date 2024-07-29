@@ -84,6 +84,173 @@ define view ZCCDS_VIEW1 as select from ZCDS_CO_VIEW1
 }
 
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+@AbapCatalog.sqlViewName: 'ZISFLIGHT1'
+@AbapCatalog.compiler.compareFilter: true
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'ZI_SFLIGHT Flight Data'
+@VDM.viewType: #BASIC
+define view ZI_SFLIGHT1 as select from sflight
+{
+    key carrid as Airline,
+    key connid as FlightNumber,
+    key fldate as FlightDate,
+        planetype as PlaneType
+}
 
 
+
+@AbapCatalog.sqlViewName: 'ZISPFLI1'
+@AbapCatalog.compiler.compareFilter: true
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'ZI_SPFLI1 Flight Schedule'
+@VDM.viewType: #BASIC
+define view ZI_SPFLI1 as select from spfli
+{
+    key carrid as Airline,
+    key connid as FlightNumber,
+        cityfrom as CityFrom,
+        cityto as CityTo
+}
+
+
+
+
+@AbapCatalog.sqlViewName: 'ZISBOOK1'
+@AbapCatalog.compiler.compareFilter: true
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'ZI_SBOOK Flight Booking'
+@VDM.viewType: #BASIC
+define view ZI_SBOOK1 as select from sbook
+{
+    key carrid as Airline,
+    key connid as FlightNumber,
+    key fldate as FlightDate,
+    key bookid as FlightBooking,
+        customid as FlightCustomer
+}
+
+
+
+
+@AbapCatalog.sqlViewName: 'ZISCUSTOM1'
+@AbapCatalog.compiler.compareFilter: true
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'ZI_SCUSTOM Flight Customer'
+@VDM.viewType: #BASIC
+define view ZI_SCUSTOM1 as select from scustom
+{
+    key id as FlightCustomer,
+        name as CustomerName,
+        city as CustomerCity
+}
+
+
+
+
+@AbapCatalog.sqlViewName: 'ZCOFLIGHTS'
+@AbapCatalog.compiler.compareFilter: true
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Flights Data'
+@VDM.viewType: #COMPOSITE
+define view ZCO_FLIGHTS
+  as select from ZI_SFLIGHT1
+  association [1..1] to ZI_SPFLI1         as _flightschedule on  $projection.Airline      = _flightschedule.Airline
+                                                             and $projection.FlightNumber = _flightschedule.FlightNumber
+  association [0..*] to ZCO_FLIGHTBOOKING as _flightBooking  on  $projection.Airline      = _flightBooking.Airline
+                                                             and $projection.FlightNumber = _flightBooking.FlightNumber
+                                                             and $projection.FlightDate   = _flightBooking.FlightDate
+{
+  key Airline,
+  key FlightNumber,
+  key FlightDate,
+      PlaneType,
+      _flightschedule.CityFrom,
+      _flightschedule.CityTo,
+      _flightschedule,
+      _flightBooking
+}
+
+
+
+
+@AbapCatalog.sqlViewName: 'ZCOFLIGHTBOOKING'
+@AbapCatalog.compiler.compareFilter: true
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Flights Booking'
+@VDM.viewType: #COMPOSITE
+define view ZCO_FLIGHTBOOKING
+  as select from ZI_SBOOK1
+  association [1..1] to ZI_SCUSTOM1 as _flightCustomer on  $projection.FlightCustomer = _flightCustomer.FlightCustomer
+  association [1..1] to ZCO_FLIGHTS as _flights        on  $projection.Airline      = _flights.Airline
+                                                       and $projection.FlightNumber = _flights.FlightNumber
+                                                       and $projection.FlightDate   = _flights.FlightDate
+{
+  key Airline,
+  key FlightNumber,
+  key FlightDate,
+  key FlightBooking,
+      FlightCustomer,
+      _flightCustomer.CustomerName,
+      _flightCustomer.CustomerCity,
+      _flightCustomer,
+      _flights
+}
+
+
+
+
+@AbapCatalog.sqlViewName: 'ZCFLIGHTS'
+@AbapCatalog.compiler.compareFilter: true
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Consumption View ZCO_FLIGHTS'
+@VDM.viewType: #CONSUMPTION
+define view ZC_FLIGHTS
+  as select from ZCO_FLIGHTS
+association [0..*] to ZC_FLIGHTBOOKING as _flightBooking_itm  on  $projection.Airline      = _flightBooking_itm.Airline
+                                                             and $projection.FlightNumber = _flightBooking_itm.FlightNumber
+                                                             and $projection.FlightDate   = _flightBooking_itm.FlightDate
+
+{
+  key Airline,
+  key FlightNumber,
+  key FlightDate,
+      PlaneType,
+      CityFrom,
+      CityTo,
+      _flightBooking_itm
+}
+
+
+
+
+@AbapCatalog.sqlViewName: 'ZCFLIGHTBOOKING'
+@AbapCatalog.compiler.compareFilter: true
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Consumption View ZCO_FLIGHTBOOKING'
+@VDM.viewType: #CONSUMPTION
+define view ZC_FLIGHTBOOKING as select from ZCO_FLIGHTBOOKING
+association [1..1] to ZC_FLIGHTS as _flights_hdr        on  $projection.Airline      = _flights_hdr.Airline
+                                                       and $projection.FlightNumber = _flights_hdr.FlightNumber
+                                                       and $projection.FlightDate   = _flights_hdr.FlightDate
+
+{
+    key Airline,
+    key FlightNumber,
+    key FlightDate,
+    key FlightBooking,
+    FlightCustomer,
+    CustomerName,
+    CustomerCity,
+    _flights_hdr
+}
 
