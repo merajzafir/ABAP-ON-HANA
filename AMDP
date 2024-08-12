@@ -121,3 +121,98 @@ lo_alv->display(  ).
 
 
 **********************************************************************************************************
+
+
+//////////////////////////////////////////////////////////////    SELECT-OPTION IN AMDP
+CLASS z31_cl_amdp3 DEFINITION PUBLIC.
+
+  PUBLIC SECTION.
+  INTERFACES if_amdp_marker_hdb.
+
+  TYPES: BEGIN OF str_sales,
+         vbeln TYPE vbak-vbeln,
+         erdat TYPE vbak-erdat,
+         erzet TYPE vbak-erzet,
+         posnr TYPE vbap-posnr,
+         matnr TYPE vbap-matnr,
+         END OF str_sales.
+  TYPES it_sales TYPE TABLE OF str_sales.
+
+  METHODS mtdsales IMPORTING VALUE(iv_sales) TYPE string
+                   EXPORTING VALUE(et_sales) TYPE it_sales.
+
+ENDCLASS.
+
+CLASS z31_cl_amdp3 IMPLEMENTATION.
+
+    METHOD mtdsales by DATABASE PROCEDURE FOR HDB LANGUAGE SQLSCRIPT
+                    OPTIONS READ-ONLY
+                    USING VBAK VBAP.
+
+        it_sales = select vk.vbeln, vk.erdat, vk.erzet, vp.posnr, vp.matnr
+                        FROM vbak as vk
+                        INNER JOIN vbap as vp
+                        on vk.vbeln = vp.vbeln;
+
+       et_sales = APPLY_FILTER (:it_sales, :iv_sales );    -- APPLY_FILTER(<table_or_table_variable>, <filter_variable_name>);
+       --APPLY_FILTER (VBAK, :iv_sales );
+    ENDMETHOD.
+
+ENDCLASS.
+
+
+///////////////////////////////////////////
+REPORT z31_amdp_prgm3.
+
+TABLES vbak.
+
+SELECT-OPTIONS so_vbeln FOR vbak-vbeln DEFAULT '300' TO '900'.
+
+DATA: lv_sales   TYPE string,
+      it_seltabs TYPE if_shdb_def=>tt_named_dref,
+      wa_seltabs TYPE if_shdb_def=>ts_named_dref.
+
+CLEAR wa_seltabs.
+wa_seltabs-name = 'VBELN'.
+*wa_seltabs-dref = REF #( so_vbeln[] ).
+GET REFERENCE OF so_vbeln[] INTO wa_seltabs-dref.
+APPEND wa_seltabs TO it_seltabs.
+
+cl_shdb_seltab=>combine_seltabs(
+  EXPORTING
+    it_named_seltabs = it_seltabs
+*    iv_client_field  =
+  RECEIVING
+    rv_where         = lv_sales
+).
+
+IF lv_sales IS NOT INITIAL.
+
+  DATA obj TYPE REF TO z31_cl_amdp3.
+  CREATE OBJECT obj.
+
+  obj->mtdsales(
+    EXPORTING
+      iv_sales = lv_sales
+    IMPORTING
+      et_sales = DATA(lt_sales)
+  ).
+
+  cl_salv_table=>factory(
+ EXPORTING
+   list_display   = if_salv_c_bool_sap=>false
+*    r_container    =
+*    container_name =
+ IMPORTING
+   r_salv_table   = DATA(lo_alv)
+ CHANGING
+   t_table        = lt_sales
+).
+
+  lo_alv->display(  ).
+
+ENDIF.
+
+
+
+****************************************************************************************************
