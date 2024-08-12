@@ -1,0 +1,56 @@
+////////////////////////////////////////////////    AMDP CLASS
+CLASS z31_cl_amdp1 DEFINITION PUBLIC.
+
+  PUBLIC SECTION.
+  INTERFACES if_amdp_marker_hdb.
+
+  TYPES TY_SCARR TYPE TABLE OF SCARR.
+
+  CLASS-METHODS amdp_procedure IMPORTING VALUE(iv_mandt) TYPE mandt
+                                         VALUE(iv_name)  TYPE s_carrname
+                               EXPORTING VALUE(et_scarr) TYPE ty_scarr.
+
+ENDCLASS.
+
+
+CLASS z31_cl_amdp1 IMPLEMENTATION.
+
+    METHOD amdp_procedure BY DATABASE PROCEDURE FOR HDB LANGUAGE SQLSCRIPT OPTIONS READ-ONLY USING scarr.
+
+        et_scarr = SELECT * FROM scarr WHERE mandt = iv_mandt
+                            AND CONTAINS (carrname, :iv_name, FUZZY( 0.5 ));
+
+    ENDMETHOD.
+
+ENDCLASS.
+
+////////////////////////////////////////// AMDP Consumption in Report
+REPORT z31_amdp_prgm.
+
+PARAMETERS p_name TYPE s_carrname.
+
+z31_cl_amdp1=>amdp_procedure(
+  EXPORTING
+    iv_mandt = sy-mandt
+    iv_name  = p_name
+  IMPORTING
+    et_scarr = data(lt_scarr)
+).
+
+cl_salv_table=>factory(
+  EXPORTING
+    list_display   = if_salv_c_bool_sap=>false
+*    r_container    =
+*    container_name =
+  IMPORTING
+    r_salv_table   = data(lo_alv)
+  CHANGING
+    t_table        = lt_scarr
+).
+
+lo_alv->display(  ).
+
+
+
+
+************************************************************************************
