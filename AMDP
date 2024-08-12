@@ -12,7 +12,6 @@ CLASS z31_cl_amdp1 DEFINITION PUBLIC.
 
 ENDCLASS.
 
-
 CLASS z31_cl_amdp1 IMPLEMENTATION.
 
     METHOD amdp_procedure BY DATABASE PROCEDURE FOR HDB LANGUAGE SQLSCRIPT OPTIONS READ-ONLY USING scarr.
@@ -21,7 +20,6 @@ CLASS z31_cl_amdp1 IMPLEMENTATION.
                             AND CONTAINS (carrname, :iv_name, FUZZY( 0.5 ));
 
     ENDMETHOD.
-
 ENDCLASS.
 
 ////////////////////////////////////////// AMDP Consumption in Report
@@ -51,6 +49,75 @@ cl_salv_table=>factory(
 lo_alv->display(  ).
 
 
-
-
 ************************************************************************************
+
+
+//////////////////////////////////////////////    AMDP CLASS
+CLASS z31_cl_amdp2 DEFINITION PUBLIC .
+
+  PUBLIC SECTION.
+  INTERFACES if_amdp_marker_hdb.
+
+  TYPES: BEGIN OF str_sales,
+         vbeln TYPE vbak-vbeln,
+         vkorg TYPE vbak-vkorg,
+         posnr TYPE vbap-posnr,
+         netwr TYPE vbap-netwr,
+         mandt TYPE vbap-mandt,
+         status TYPE char30,
+         END OF str_sales.
+  TYPES ty_sales TYPE TABLE OF str_sales.
+
+  class-METHODS salesmtd IMPORTING VALUE(iv_sales) TYPE vbeln
+                         EXPORTING VALUE(et_sales) TYPE ty_sales.
+
+ENDCLASS.
+
+CLASS z31_cl_amdp2 IMPLEMENTATION.
+
+    METHOD salesmtd BY DATABASE PROCEDURE FOR HDB LANGUAGE SQLSCRIPT
+                    OPTIONS READ-ONLY
+                    USING VBAK VBAP.
+
+     et_sales = SELECT vk.vbeln, vk.vkorg, vp.posnr, vp.netwr, vp.mandt,
+                       CASE vp.lfsta
+                            WHEN ' ' THEN 'Not Relevant'
+                            WHEN 'A' THEN 'Yet Not Processed'
+                            WHEN 'B' THEN 'Partially Processed'
+                            WHEN 'C' THEN 'Completely Processed' END AS Status
+                    FROM vbak as vk
+                    INNER JOIN vbap as vp
+                    ON vk.vbeln = vp.vbeln
+                    WHERE vk.vbeln = iv_sales;
+
+    ENDMETHOD.
+
+ENDCLASS.
+
+////////////////////////////////////////////   AMDP Consumption in Report
+REPORT z31_amdp_prgm2.
+
+PARAMETERS p_vbeln TYPE vbak-vbeln.
+
+z31_cl_amdp2=>salesmtd(
+  EXPORTING
+    iv_sales = p_vbeln
+  IMPORTING
+    et_sales = data(lt_sales)
+).
+
+cl_salv_table=>factory(
+  EXPORTING
+    list_display   = if_salv_c_bool_sap=>false
+*    r_container    =
+*    container_name =
+  IMPORTING
+    r_salv_table   = data(lo_alv)
+  CHANGING
+    t_table        = lt_sales
+).
+
+lo_alv->display(  ).
+
+
+**********************************************************************************************************
