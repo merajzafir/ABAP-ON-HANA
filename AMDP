@@ -278,3 +278,76 @@ cl_demo_output=>display_data( lt_plane ).
 
 
 ***********************************************************************************************************************************
+
+
+//////////////////////////////////////////////////////////////////  CRUD Operations in AMDP
+CLASS z31_cl_amdp6 DEFINITION PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_amdp_marker_hdb.
+
+    TYPES tt_z31_scarr TYPE TABLE OF z31_scarr.
+
+    CLASS-METHODS md_insert EXPORTING VALUE(et_read) TYPE tt_z31_scarr RAISING cx_amdp_execution_failed.
+
+ENDCLASS.
+
+CLASS z31_cl_amdp6 IMPLEMENTATION.
+
+  METHOD md_insert BY DATABASE PROCEDURE FOR HDB LANGUAGE SQLSCRIPT USING z31_scarr.
+
+*    DECLARE ITAB TABLE LIKE Z31_SCARR; --Declared an internal table ITAB
+*
+*    :ITAB.INSERT(  ( 100, 'SR', 'Swiss', 'CHF', 'http://www.swiss.com' ) );
+*
+*    INSERT INTO Z31_SCARR SELECT * FROM :ITAB;
+
+*    UPDATE z31_scarr SET carrname = 'Airline Zafir' WHERE carrid = 'ZA';
+
+*    DELETE FROM z31_scarr WHERE carrid = 'ZA';
+
+    ET_READ = SELECT* FROM z31_scarr;
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+
+////////////////////////////////////////
+REPORT z31_amdp_prgm6.
+
+DATA cx1 TYPE REF TO cx_amdp_execution_failed.
+DATA msg TYPE string.
+
+TRY.
+    CALL METHOD z31_cl_amdp6=>md_insert
+      IMPORTING
+        et_read = DATA(lt_read).
+  CATCH cx_amdp_execution_failed INTO cx1.
+    cx1->get_longtext(
+      RECEIVING
+        result = msg
+    ).
+    WRITE / msg.
+ENDTRY.
+
+IF lt_read IS NOT INITIAL.
+
+  cl_salv_table=>factory(
+    EXPORTING
+      list_display   = if_salv_c_bool_sap=>false
+*    r_container    =
+*    container_name =
+    IMPORTING
+      r_salv_table   = DATA(lo_alv)
+    CHANGING
+      t_table        = lt_read
+  ).
+
+  lo_alv->display(  ).
+
+ENDIF.
+
+
+
+
