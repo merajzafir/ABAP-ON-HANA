@@ -214,5 +214,67 @@ IF lv_sales IS NOT INITIAL.
 ENDIF.
 
 
-
 ****************************************************************************************************
+
+
+//////////////////////////////////////////////  Receive Multiple Result Set from AMDP method
+CLASS z31_cl_amdp4 DEFINITION  PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_amdp_marker_hdb.
+
+    TYPES: BEGIN OF str_sflight,
+             carrid   TYPE sflight-carrid,
+             connid   TYPE sflight-connid,
+             seatsmax TYPE sflight-seatsmax,
+             seatsocc TYPE sflight-seatsocc,
+           END OF str_sflight.
+
+    TYPES: BEGIN OF str_plane,
+             carrid    TYPE scarplan-carrid,
+             planetype TYPE scarplan-planetype,
+             snumber   TYPE scarplan-snumber,
+           END OF str_plane.
+
+    TYPES: tt_sflight TYPE TABLE OF str_sflight,
+           tt_plane   TYPE TABLE OF str_plane.
+
+    CLASS-METHODS md_flight IMPORTING VALUE(iv_carrid)  TYPE s_carr_id
+                            EXPORTING VALUE(et_sflight) TYPE tt_sflight
+                                      VALUE(et_plane)   TYPE tt_plane.
+
+ENDCLASS.
+
+CLASS z31_cl_amdp4 IMPLEMENTATION.
+
+  METHOD md_flight BY DATABASE PROCEDURE FOR HDB LANGUAGE SQLSCRIPT
+                   OPTIONS READ-ONLY
+                   USING sflight scarplan.
+
+    et_sflight = select carrid, connid, seatsmax, seatsocc from sflight where carrid = iv_carrid;
+    et_plane = select carrid, planetype, snumber from scarplan where carrid = iv_carrid;
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+
+///////////////////////////////////////////
+REPORT z31_amdp_prgm4.
+
+PARAMETERS p_carrid TYPE s_carr_id.
+
+z31_cl_amdp4=>md_flight(
+  EXPORTING
+    iv_carrid  = p_carrid
+  IMPORTING
+    et_sflight = data(lt_sflight)
+    et_plane   = data(lt_plane)
+).
+
+cl_demo_output=>display_data( lt_sflight ).
+cl_demo_output=>display_data( lt_plane ).
+
+
+
+***********************************************************************************************************************************
