@@ -123,7 +123,7 @@ lo_alv->display(  ).
 **********************************************************************************************************
 
 
-//////////////////////////////////////////////////////////////    SELECT-OPTION IN AMDP
+//////////////////////////////////////////////////////////////    SELECT-OPTION IN AMDP  --> 1
 CLASS z31_cl_amdp3 DEFINITION PUBLIC.
 
   PUBLIC SECTION.
@@ -212,6 +212,81 @@ IF lv_sales IS NOT INITIAL.
   lo_alv->display(  ).
 
 ENDIF.
+
+
+
+///////////////////////////////////////////////    SELECT-OPTION IN AMDP  --> 2
+CLASS z31_cl_amdp5 DEFINITION PUBLIC.
+
+  PUBLIC SECTION.
+  INTERFACES if_amdp_marker_hdb.
+
+  TYPES TT_SCARR TYPE TABLE OF SCARR.
+  TYPES TT_SPFLI TYPE TABLE OF SPFLI.
+
+  class-METHODS amdp_method IMPORTING VALUE(iv_carr) TYPE string
+                            EXPORTING VALUE(et_scarr) TYPE TT_SCARR
+                                      VALUE(et_spfli) TYPE TT_SPFLI.
+ENDCLASS.
+
+CLASS z31_cl_amdp5 IMPLEMENTATION.
+
+    METHOD amdp_method BY DATABASE PROCEDURE FOR HDB LANGUAGE SQLSCRIPT OPTIONS READ-ONLY
+                       USING scarr spfli.
+
+          DECLARE it_scarr TABLE LIKE SCARR;
+          DECLARE it_spfli TABLE LIKE SPFLI;
+
+          it_scarr = select * FROM scarr WHERE mandt = session_context( 'CLIENT' );
+          et_scarr = APPLY_FILTER (:it_scarr, :iv_carr );
+
+          it_spfli = select * FROM spfli WHERE mandt = session_context( 'CLIENT' );
+          et_spfli = APPLY_FILTER (:it_spfli, :iv_carr );
+
+    ENDMETHOD.
+
+ENDCLASS.
+
+
+/////////////////////////////////////////////////////
+REPORT z31_dummy.
+
+TABLES scarr.
+
+data : lt_seltab TYPE IF_SHDB_DEF=>TT_NAMED_DREF,
+       wa_seltab TYPE IF_SHDB_DEF=>TS_NAMED_DREF.
+
+select-OPTIONS so_carr FOR scarr-carrid.
+
+clear wa_seltab.
+wa_seltab-name = 'CARRID'.
+get REFERENCE OF so_carr[] INTO wa_seltab-dref.
+APPEND wa_seltab TO lt_seltab.
+
+*TRY.
+CALL METHOD cl_shdb_seltab=>combine_seltabs
+  EXPORTING
+    it_named_seltabs = lt_seltab
+*    iv_client_field  =
+  receiving
+    rv_where         = data(lv_carr)
+    .
+*  CATCH cx_shdb_exception.
+*ENDTRY.
+
+
+z31_cl_amdp5=>amdp_method(
+  EXPORTING
+    iv_carr = lv_carr
+  IMPORTING
+    et_scarr  = data(lt_scarr)
+    et_spfli  = data(lt_spfli)
+).
+
+if lt_scarr is NOT INITIAL.
+   cl_demo_output=>display_data( lt_scarr ).
+   cl_demo_output=>display_data( lt_spfli ).
+endif.
 
 
 ****************************************************************************************************
